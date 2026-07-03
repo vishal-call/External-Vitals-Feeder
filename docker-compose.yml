@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: external-vitals-feeder-backend
+    ports:
+      - "8100:8100"
+    volumes:
+      - ./backend/data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:///./data/vitals.db
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: external-vitals-feeder-frontend
+    ports:
+      - "3100:3100"
+    environment:
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:8100
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+volumes:
+  vitals-db-data:
